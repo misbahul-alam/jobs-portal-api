@@ -1,5 +1,5 @@
-import { env } from "./env.js";
+import { env } from "./env";
 
 export const loggerConfig = {
-  level: env.NODE_ENV === "production" ? "info" : "debug",
+    level: env.NODE_ENV === "production" ? "info" : "debug"
 };

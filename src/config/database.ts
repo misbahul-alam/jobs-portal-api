@@ -1,5 +1,5 @@
-import { env } from "./env.js";
+import {env} from "@/config/env";
 
-export const dbConfig = {
-  url: env.DATABASE_URL,
-};
+export const dbConfig ={
+    url: env.DATABASE_URL
+}

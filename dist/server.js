@@ -1,2 +1,0 @@
-import{buildApp as o}from"./app.js";const r=o(),s=async()=>{try{await r.listen({port:5e3,host:"127.0.0.1"}),console.log("server running at http://localhost:5000")}catch(t){r.log.error(t),process.exit(1)}};s();
-//# sourceMappingURL=server.js.map

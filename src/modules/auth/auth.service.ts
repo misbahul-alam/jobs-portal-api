@@ -1,26 +1,48 @@
-// import fp from "fastify-plugin";
-// import fastifyJwt from "@fastify/jwt";
-// import { env } from "./../../config/env.js";
-// import type { FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyInstance } from "fastify";
+import { users } from "../../db/schema/users.js";
 
-// export default fp(async (fastify) => {
-//   fastify.register(fastifyJwt, { secret: env.JWT_SECRET });
+export const findUserByEmail = async (app: FastifyInstance, email: string) => {
+  const user = await app.db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.email, email),
+  });
+  return user;
+};
 
-//   // decorate request with user (typed via module augmentation below)
-//   fastify.decorateRequest("user");
+export const findUserById = async (app: FastifyInstance, id: string) => {
+  const user = await app.db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.id, id),
+  });
+  return user;
+};
 
-//   // reusable auth preHandler (no decorate() needed)
-//   fastify.addHook(
-//     "preHandler",
-//     async (req: FastifyRequest, reply: FastifyReply) => {
-//       // Only run when route opts-in (see route usage below)
-//       if (!req.routeOptions.config.auth) return;
+export const createUser = async (
+  app: FastifyInstance,
+  data: {
+    name: string;
+    email: string;
+    password: string;
+    headline?: string;
+    location?: string;
+    role?: "job_seeker" | "recruiter";
+  },
+) => {
+  const user = await app.db.insert(users).values(data).returning();
+  return user;
+};
 
-//       try {
-//         await req.jwtVerify();
-//       } catch {
-//         return reply.code(401).send({ message: "Unauthorized" });
-//       }
-//     },
-//   );
-// });
+export const verifyRefreshToken = async (
+  app: FastifyInstance,
+  token: string,
+) => {
+  const payload = app.jwt.verify<{
+    type: "refresh" | "access";
+    userId: string;
+    role: string;
+  }>(token);
+
+  if (payload.type !== "refresh") {
+    throw new Error("Invalid token type");
+  }
+
+  return payload;
+};

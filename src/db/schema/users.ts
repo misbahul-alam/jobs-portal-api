@@ -14,14 +14,14 @@ import { userRoleEnum } from "./enums.js";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  password: text("password").notNull(),
-  fullName: text("full_name").notNull(),
+  isEmailVerified: boolean("is_email_verified").notNull().default(false),
   headline: text("headline"),
   location: text("location"),
   avatarUrl: text("avatar_url"),
   role: userRoleEnum("role").notNull().default("job_seeker"),
-  isEmailVerified: boolean("is_email_verified").notNull().default(false),
+  password: text("password").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -1,6 +1,6 @@
 import fp from "fastify-plugin";
 import fastifyJwt from "@fastify/jwt";
-import { env } from "./../config/index.js";
+import { jwtConfig } from "./../config/jwt.js";
 import type {
   FastifyInstance,
   FastifyPluginAsync,
@@ -19,17 +19,19 @@ declare module "@fastify/jwt" {
     payload: {
       userId: string;
       role: string;
+      type: "access" | "refresh";
     };
     user: {
       userId: string;
       role: string;
+      type: "access" | "refresh";
     };
   }
 }
 
 const jwtPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.register(fastifyJwt, {
-    secret: env.JWT_SECRET,
+    secret: jwtConfig.secret,
   });
 
   fastify.decorate(
@@ -37,6 +39,12 @@ const jwtPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     async (req: FastifyRequest, reply: FastifyReply) => {
       try {
         await req.jwtVerify();
+
+        if (req.user.type !== "access") {
+          return reply
+            .code(401)
+            .send({ error: "Invalid token type, access token required" });
+        }
       } catch (err) {
         reply.code(401).send({ error: "Unauthorized" });
       }
